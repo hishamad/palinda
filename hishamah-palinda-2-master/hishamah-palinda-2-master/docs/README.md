@@ -1,6 +1,4 @@
-If written answers are required, you can add them to this file. Just copy the
-relevant questions from the root of the repo, preferably in
-
+## Task 2
 
 ### What happens if you switch the order of the statements wgp.Wait() and close(ch) in the end of the main function?
 
