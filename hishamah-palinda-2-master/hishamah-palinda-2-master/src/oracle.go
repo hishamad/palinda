@@ -43,7 +43,28 @@ func main() {
 func Oracle() chan<- string {
 	questions := make(chan string)
 	// TODO: Answer questions.
+	ansPred := make(chan string)
+
+	go func() {
+		for q := range questions {
+			go prophecy(q, ansPred)
+		}
+	}()
+
 	
+	go func() {
+		for {
+			prophecy("", ansPred)
+		}
+	}()
+
+		
+	go func() {
+		for ans := range ansPred {
+			fmt.Println(ans)
+		}
+	}()
+
 	// TODO: Make prophecies.
 	// TODO: Print answers.
 	return questions
