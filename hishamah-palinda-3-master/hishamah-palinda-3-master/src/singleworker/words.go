@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"strings"
 	"time"
 )
 
@@ -10,7 +13,14 @@ const DataFile = "loremipsum.txt"
 // Return the word frequencies of the text argument.
 func WordCount(text string) map[string]int {
 	freqs := make(map[string]int)
-	// ...
+	words := strings.Fields(text)
+
+	for _, word := range words {
+		lowWord := strings.ToLower(word)
+		lowWord = strings.TrimSuffix(lowWord, ".")
+		lowWord = strings.TrimSuffix(lowWord, ",")
+		freqs[lowWord] += 1
+	}
 	return freqs
 }
 
@@ -37,6 +47,11 @@ func printResults(runtimeMillis int64, numRuns int) {
 
 func main() {
 	// read in DataFile as a string called data
+	content, err := ioutil.ReadFile(DataFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	data := string(content)
 
 	fmt.Printf("%#v", WordCount(string(data)))
 

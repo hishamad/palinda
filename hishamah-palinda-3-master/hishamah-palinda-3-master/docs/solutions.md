@@ -1,6 +1,6 @@
-# Assignment {{TK}}
+# Assignment 3
 
-#### Exercise x.yz
-> Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+#### Task 2
 
-<!-- Put your answer here -->
+#### Task 3
+The parallell version is 2.7x faster than the normal one. 
