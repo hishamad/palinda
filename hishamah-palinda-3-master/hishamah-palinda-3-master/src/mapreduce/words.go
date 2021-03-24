@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"time"
 	"io/ioutil"
-	"log"
 	"strings"
-	"sync"
+	"runtime"
+	"math"
+	"log"
 )
 
 const DataFile = "loremipsum.txt"
@@ -16,35 +17,35 @@ const DataFile = "loremipsum.txt"
 // Split load optimally across processor cores.
 func WordCount(text string) map[string]int {
 	freq := make(map[string]int)
+	text = strings.ToLower(text)
 	words := strings.Fields(text)
-	ch := make(chan map[string]int, 12)
+	numWords := len(words)
+	numCPU := runtime.NumCPU()
+	skip := int(math.Ceil(float64(numWords / numCPU)));
+	ch := make(chan map[string]int, numCPU)
 	// 113123 words
-	var wg sync.WaitGroup
-    for i, j := 0, 10000; i < len(words); i, j = j, j+10000 {
-		if j > len(words) {
-            j = len(words)
+	for i := 0; i < numCPU; i++ {
+		j := (i+1) * skip
+		if(i == numCPU-1){
+			j = numWords
 		}
-		wg.Add(1)
-        go func(i, j int) {
+		slice := words[i*skip:j]
+		go func() {
 			partialFreq := make(map[string]int)
-            for _,word := range words[i:j] {
-				lowWord := strings.ToLower(word)
-				lowWord = strings.TrimSuffix(lowWord, ".")
+			for _,word := range slice {
+				lowWord := strings.TrimSuffix(word, ".")
 				lowWord = strings.TrimSuffix(lowWord, ",")
 				partialFreq[lowWord] += 1
 			}
 			ch <- partialFreq
-			defer wg.Done()
-		}(i, j)
+		}()
 	}
-	wg.Wait()
-	close(ch)
-	for c := range ch {
-		for k, v := range c {
+
+	for i:= 0; i < numCPU; i++ {	
+		for k, v := range <-ch {
 			freq[k] += v
 		}
 	}
-	
 	
 	return freq
 }
@@ -80,6 +81,7 @@ func main() {
 		log.Fatal(err)
 	}
 	data := string(content)
+	fmt.Printf("%#v", WordCount(string(data)))
 
 	numRuns := 100
 	runtimeMillis := benchmark(string(data), numRuns)
